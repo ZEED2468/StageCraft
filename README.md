@@ -1,10 +1,5 @@
 # StageCraft - Event Ticketing & Seat Reservation System
-
-<div align="center">
-
-*Crafting seamless ticketing experiences that work flawlessly under pressure*
-
-</div>
+Crafting seamless ticketing experiences that work flawlessly under pressure
 
 ## Overview
 
