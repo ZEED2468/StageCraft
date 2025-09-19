@@ -2,14 +2,20 @@ import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SendOtpDto {
-  @ApiProperty({ example: 'john.doe@example.com', description: 'The email of the user' })
+  @ApiProperty({
+    example: 'john.doe@example.com',
+    description: 'The email of the user',
+  })
   @IsEmail()
   @IsNotEmpty()
   email: string;
 }
 
 export class ValidateOtpDto {
-  @ApiProperty({ example: 'john.doe@example.com', description: 'The email of the user' })
+  @ApiProperty({
+    example: 'john.doe@example.com',
+    description: 'The email of the user',
+  })
   @IsEmail()
   @IsNotEmpty()
   email: string;

@@ -1,4 +1,12 @@
-import { Controller, Post, Body, ValidationPipe, Res, HttpCode, Req } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  ValidationPipe,
+  Res,
+  HttpCode,
+  Req,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -14,11 +22,10 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-
   private setAuthCookie(res: Response, accessToken: string): void {
     res.cookie('access_token', accessToken, {
-      httpOnly: true,        // Prevents XSS attacks - cookie not accessible via JavaScript
-      sameSite: 'lax',       // CSRF protection - cookie sent only on same-site requests
+      httpOnly: true, // Prevents XSS attacks - cookie not accessible via JavaScript
+      sameSite: 'lax', // CSRF protection - cookie sent only on same-site requests
       secure: process.env.NODE_ENV === 'production', // HTTPS only in production
       maxAge: 24 * 60 * 60 * 1000, // 24 hours expiration
     });
@@ -28,10 +35,17 @@ export class AuthController {
   @Post('register')
   @HttpCode(201)
   @ApiOperation({ summary: 'Register a new user' })
-  @ApiResponse({ status: 201, description: 'User registered successfully', type: AuthResponseDto })
+  @ApiResponse({
+    status: 201,
+    description: 'User registered successfully',
+    type: AuthResponseDto,
+  })
   @ApiResponse({ status: 400, description: 'Invalid input' })
-  async register(@Body(ValidationPipe) createUserDto: CreateUserDto, 
-  @Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<AuthResponseDto> {
+  async register(
+    @Body(ValidationPipe) createUserDto: CreateUserDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<AuthResponseDto> {
     const response = await this.authService.register(createUserDto, req);
     this.setAuthCookie(res, response.data.accessToken);
     return response;
@@ -41,10 +55,16 @@ export class AuthController {
   @Post('login')
   @HttpCode(200)
   @ApiOperation({ summary: 'Log in a user' })
-  @ApiResponse({ status: 200, description: 'User logged in successfully', type: AuthResponseDto })
+  @ApiResponse({
+    status: 200,
+    description: 'User logged in successfully',
+    type: AuthResponseDto,
+  })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
-  async login(@Body() loginDto: SignInDto, 
-  @Res({ passthrough: true }) res: Response): Promise<AuthResponseDto> {
+  async login(
+    @Body() loginDto: SignInDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<AuthResponseDto> {
     const response = await this.authService.login(loginDto);
     this.setAuthCookie(res, response.data.accessToken);
     return response;
@@ -54,9 +74,15 @@ export class AuthController {
   @Post('google')
   @HttpCode(200)
   @ApiOperation({ summary: 'Google authentication' })
-  @ApiResponse({ status: 200, description: 'User authenticated via Google', type: AuthResponseDto })
-  async google(@Body() body: GoogleAuthPayloadDto, 
-  @Res({ passthrough: true }) res: Response): Promise<AuthResponseDto> {
+  @ApiResponse({
+    status: 200,
+    description: 'User authenticated via Google',
+    type: AuthResponseDto,
+  })
+  async google(
+    @Body() body: GoogleAuthPayloadDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<AuthResponseDto> {
     const response = await this.authService.googleAuth(body);
     this.setAuthCookie(res, response.data.accessToken);
     return response;
@@ -87,7 +113,10 @@ export class AuthController {
   @Post('forgot-password')
   @HttpCode(200)
   @ApiOperation({ summary: 'Request password reset OTP' })
-  @ApiResponse({ status: 200, description: 'Password reset OTP sent successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Password reset OTP sent successfully',
+  })
   @ApiResponse({ status: 400, description: 'Invalid email' })
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     return this.authService.forgotPassword(forgotPasswordDto);
@@ -103,4 +132,3 @@ export class AuthController {
     return this.authService.resetPassword(resetPasswordDto);
   }
 }
-

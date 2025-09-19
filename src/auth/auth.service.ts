@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException, BadRequestException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+  HttpStatus,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import * as SYS_MSG from '../common/SystemMessages';
@@ -30,12 +35,14 @@ export class AuthService {
     const { email, fullName, password } = createUserDto;
     if (!email || !fullName || !password)
       throw new BadRequestException(SYS_MSG.MISSING_FIELDS);
-    const existing = await this.userRepository.findOne({ where: { email: createUserDto.email } });
+    const existing = await this.userRepository.findOne({
+      where: { email: createUserDto.email },
+    });
     if (existing) throw new BadRequestException(SYS_MSG.USER_ACCOUNT_EXIST);
-    
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const otp = randomInt(100000, 999999).toString();
-    
+
     try {
       await this.emailService.sendOtpEmail({ email, fullName }, otp);
     } catch (_error) {
@@ -101,9 +108,8 @@ export class AuthService {
   */
   async googleAuth(googleAuthPayload: { id_token: string }) {
     const idToken = googleAuthPayload.id_token;
-    if (!idToken)
-      throw new UnauthorizedException(SYS_MSG.INVALID_CREDENTIALS);
-    
+    if (!idToken) throw new UnauthorizedException(SYS_MSG.INVALID_CREDENTIALS);
+
     try {
       const request = await fetch(
         `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${idToken}`,
@@ -124,7 +130,7 @@ export class AuthService {
 
       const user = await this.validateOrCreateGoogleUser(userEmail, userName);
       const { accessToken } = this.generateTokens(user);
-      
+
       return {
         statusCode: HttpStatus.OK,
         message: SYS_MSG.LOGIN_SUCCESSFUL,
@@ -153,7 +159,7 @@ export class AuthService {
   */
   generateTokens(user: User) {
     const payload = { sub: user.id, email: user.email };
-    const accessToken = this.jwtService.sign(payload); 
+    const accessToken = this.jwtService.sign(payload);
     return { accessToken };
   }
 
@@ -163,14 +169,23 @@ export class AuthService {
   ========================================
   */
   async validateUser(email: string, password: string): Promise<User> {
-    const user = await this.userRepository.findOne(
-      { where: { email }, 
-      select: ['id','email','fullName','password','isEmailVerified','createdAt','updatedAt'] 
+    const user = await this.userRepository.findOne({
+      where: { email },
+      select: [
+        'id',
+        'email',
+        'fullName',
+        'password',
+        'isEmailVerified',
+        'createdAt',
+        'updatedAt',
+      ],
     });
-    if (!user) throw new UnauthorizedException(SYS_MSG.USER_ACCOUNT_DOES_NOT_EXIST);
+    if (!user)
+      throw new UnauthorizedException(SYS_MSG.USER_ACCOUNT_DOES_NOT_EXIST);
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) throw new UnauthorizedException(SYS_MSG.INVALID_PASSWORD);
-    
+
     if (!user.isEmailVerified) {
       // Re-send OTP
       const otp = randomInt(100000, 999999).toString();
@@ -181,7 +196,7 @@ export class AuthService {
 
       throw new UnauthorizedException(SYS_MSG.EMAIL_NOT_VERIFIED);
     }
-    
+
     return user;
   }
 
@@ -190,21 +205,24 @@ export class AuthService {
   Validate or Create User for Google OAuth
   ==========================================
   */
-  private async validateOrCreateGoogleUser(email: string, name: string): Promise<User> {
+  private async validateOrCreateGoogleUser(
+    email: string,
+    name: string,
+  ): Promise<User> {
     let user = await this.userRepository.findOne({ where: { email } });
-    
+
     if (!user) {
       const randomPassword = 'google_' + Math.random().toString(36).slice(2);
       const hash = await bcrypt.hash(randomPassword, 10);
-      const created = this.userRepository.create({ 
-        email, 
-        fullName: name || 'Google User', 
+      const created = this.userRepository.create({
+        email,
+        fullName: name || 'Google User',
         password: hash,
         isEmailVerified: true, // Google users are automatically verified
       });
       user = await this.userRepository.save(created);
     }
-    
+
     return user;
   }
 
@@ -229,7 +247,7 @@ export class AuthService {
     } catch (_error) {
       throw new BadRequestException(SYS_MSG.OTP_EMAIL_FAILED);
     }
-    
+
     return {
       statusCode: HttpStatus.OK,
       message: SYS_MSG.OTP_SENT_SUCCESSFULLY,
@@ -261,7 +279,7 @@ export class AuthService {
     user.otpExpiresAt = null;
     user.isEmailVerified = true;
     await this.userRepository.save(user);
-    
+
     return {
       statusCode: HttpStatus.OK,
       message: SYS_MSG.EMAIL_VERIFIED_SUCCESSFULLY,
@@ -276,7 +294,7 @@ export class AuthService {
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
     const { email } = forgotPasswordDto;
     const user = await this.userRepository.findOne({ where: { email } });
-    
+
     if (!user) {
       throw new BadRequestException(SYS_MSG.USER_ACCOUNT_DOES_NOT_EXIST);
     }
@@ -284,17 +302,17 @@ export class AuthService {
     const otp = randomInt(100000, 999999).toString();
     const salt = await bcrypt.genSalt(10);
     const hashedOtp = await bcrypt.hash(otp, salt);
-    
+
     user.otp = hashedOtp;
     user.otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
     await this.userRepository.save(user);
-    
+
     try {
       await this.emailService.sendForgotPasswordEmail(user, otp);
     } catch (_error) {
       throw new BadRequestException(SYS_MSG.OTP_EMAIL_FAILED);
     }
-    
+
     return {
       statusCode: HttpStatus.OK,
       message: SYS_MSG.FORGOT_PASSWORD_OTP_SENT,
@@ -316,27 +334,26 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException(SYS_MSG.USER_ACCOUNT_DOES_NOT_EXIST);
     }
-    
+
     if (!user.otpExpiresAt || user.otpExpiresAt < new Date()) {
       throw new UnauthorizedException(SYS_MSG.INVALID_RESET_OTP);
     }
-    
+
     const isOtpValid = await bcrypt.compare(otp, user.otp);
     if (!isOtpValid) {
       throw new UnauthorizedException(SYS_MSG.INVALID_RESET_OTP);
     }
-    
+
     // Reset password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
     user.otp = null;
     user.otpExpiresAt = null;
     await this.userRepository.save(user);
-    
+
     return {
       statusCode: HttpStatus.OK,
       message: SYS_MSG.PASSWORD_RESET_SUCCESSFUL,
     };
   }
-
 }

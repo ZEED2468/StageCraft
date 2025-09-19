@@ -14,7 +14,10 @@ export class EmailService {
    Send Welcome OTP Email
    =============================
    */
-  async sendOtpEmail(userDetails: { email: string; fullName: string }, otp: string) {
+  async sendOtpEmail(
+    userDetails: { email: string; fullName: string },
+    otp: string,
+  ) {
     await this.mailerService.sendMail({
       to: userDetails.email,
       subject: 'Your OTP Code',
@@ -31,7 +34,10 @@ export class EmailService {
    Send Forgot Password OTP Email
    =============================
    */
-  async sendForgotPasswordEmail(userDetails: { email: string; fullName: string }, otp: string) {
+  async sendForgotPasswordEmail(
+    userDetails: { email: string; fullName: string },
+    otp: string,
+  ) {
     await this.mailerService.sendMail({
       to: userDetails.email,
       subject: 'Password Reset Request',
@@ -39,7 +45,7 @@ export class EmailService {
       context: {
         username: userDetails.fullName,
         otp,
-      },     
+      },
     });
   }
 }

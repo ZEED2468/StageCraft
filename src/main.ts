@@ -8,7 +8,7 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   const configService = app.get(ConfigService);
   const port = configService.get('app.port') || 3000;
 
@@ -24,7 +24,7 @@ async function bootstrap() {
   );
 
   app.useGlobalInterceptors(new ResponseInterceptor());
-  
+
   app.use(cookieParser());
   app.enableCors({
     origin: true,
