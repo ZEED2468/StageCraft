@@ -5,9 +5,8 @@ import {
   ValidationPipe,
   Res,
   HttpCode,
-  Req,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SignInDto } from './dto/signin.dto';
@@ -43,10 +42,9 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Invalid input' })
   async register(
     @Body(ValidationPipe) createUserDto: CreateUserDto,
-    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponseDto> {
-    const response = await this.authService.register(createUserDto, req);
+    const response = await this.authService.register(createUserDto);
     this.setAuthCookie(res, response.data.accessToken);
     return response;
   }
