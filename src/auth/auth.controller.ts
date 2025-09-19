@@ -111,8 +111,7 @@ export class AuthController {
   @Post('forgot-password')
   @HttpCode(200)
   @ApiOperation({ summary: 'Request password reset OTP' })
-  @ApiResponse({
-    status: 200,
+  @ApiResponse({status: 200,
     description: 'Password reset OTP sent successfully',
   })
   @ApiResponse({ status: 400, description: 'Invalid email' })
