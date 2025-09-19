@@ -26,7 +26,7 @@ export class AuthService {
   User Registration Method
   ========================================
   */
-  async register(createUserDto: CreateUserDto, req?: Request) {
+  async register(createUserDto: CreateUserDto, _req?: Request) {
     const { email, fullName, password } = createUserDto;
     if (!email || !fullName || !password)
       throw new BadRequestException(SYS_MSG.MISSING_FIELDS);
@@ -38,7 +38,7 @@ export class AuthService {
     
     try {
       await this.emailService.sendOtpEmail({ email, fullName }, otp);
-    } catch (error) {
+    } catch (_error) {
       throw new BadRequestException(SYS_MSG.EMAIL_SENDING_FAILED);
     }
 
@@ -138,9 +138,9 @@ export class AuthService {
           accessToken,
         },
       };
-    } catch (error) {
-      if (error instanceof UnauthorizedException) {
-        throw error;
+    } catch (_error) {
+      if (_error instanceof UnauthorizedException) {
+        throw _error;
       }
       throw new BadRequestException(SYS_MSG.SERVER_ERROR);
     }
@@ -226,7 +226,7 @@ export class AuthService {
     await this.userRepository.save(user);
     try {
       await this.emailService.sendOtpEmail(user, otp);
-    } catch (error) {
+    } catch (_error) {
       throw new BadRequestException(SYS_MSG.OTP_EMAIL_FAILED);
     }
     
@@ -291,7 +291,7 @@ export class AuthService {
     
     try {
       await this.emailService.sendForgotPasswordEmail(user, otp);
-    } catch (error) {
+    } catch (_error) {
       throw new BadRequestException(SYS_MSG.OTP_EMAIL_FAILED);
     }
     
