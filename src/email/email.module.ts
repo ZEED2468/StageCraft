@@ -22,7 +22,7 @@ import { ConfigService } from '@nestjs/config';
           },
         },
         defaults: {
-          from: `"StageCraft" <${config.get<string>('USER_NAME')}>`,
+          from: `"StageCraft" <${config.get('USER_NAME')}>`,
         },
         template: {
           dir: join(__dirname, 'templates'),

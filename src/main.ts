@@ -12,6 +12,9 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get('app.port') || 3000;
 
+  // Set global API prefix
+  app.setGlobalPrefix('api/v1');
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -34,9 +37,9 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('api/v1/docs', app, document);
 
   await app.listen(port);
-  console.log(`Application is running on: http://localhost:${port}`);
+  console.log(`Application is running on port ${port}`);
 }
 bootstrap();

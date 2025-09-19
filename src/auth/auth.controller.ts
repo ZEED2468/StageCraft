@@ -7,7 +7,6 @@ import { GoogleAuthPayloadDto } from './dto/google-auth.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { SendOtpDto, ValidateOtpDto } from './dto/otp.dto';
 import { ForgotPasswordDto, ResetPasswordDto } from './dto/forgot-password.dto';
-import * as SYS_MSG from '../common/SystemMessages';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @ApiTags('Authentication')
@@ -64,7 +63,7 @@ export class AuthController {
   }
 
   /** API Endpoint for sending OTP to user's registered email */
-  @Post('otp/sent')
+  @Post('send-otp')
   @HttpCode(200)
   @ApiOperation({ summary: 'Send OTP to user' })
   @ApiResponse({ status: 200, description: 'OTP sent successfully' })
@@ -74,10 +73,10 @@ export class AuthController {
   }
 
   /** API Endpoint for validating OTP sent to user's registered email */
-  @Post('otp/validate')
+  @Post('verify-otp')
   @HttpCode(200)
-  @ApiOperation({ summary: 'Validate OTP sent to user' })
-  @ApiResponse({ status: 200, description: 'OTP validated successfully' })
+  @ApiOperation({ summary: 'Verify OTP sent to user' })
+  @ApiResponse({ status: 200, description: 'OTP verified successfully' })
   @ApiResponse({ status: 400, description: 'Invalid OTP or expired OTP' })
   async validateOtp(@Body() validateOtpDto: ValidateOtpDto) {
     const { email, otp } = validateOtpDto;

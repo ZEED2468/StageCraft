@@ -22,7 +22,7 @@ export class EmailService {
       context: {
         username: userDetails.fullName,
         otp,
-      },     
+      },
     });
   }
 
@@ -35,7 +35,7 @@ export class EmailService {
     await this.mailerService.sendMail({
       to: userDetails.email,
       subject: 'Password Reset Request',
-      template: './forgot-password',
+      template: './forgetpassword',
       context: {
         username: userDetails.fullName,
         otp,

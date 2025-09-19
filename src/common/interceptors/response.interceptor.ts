@@ -22,11 +22,19 @@ export class ResponseInterceptor<T>
     next: CallHandler,
   ): Observable<Response<T>> {
     return next.handle().pipe(
-      map((data) => ({
-        success: true,
-        data,
-        message: 'Request successful',
-      })),
+      map((data) => {
+        // If the response already has the expected format (from auth service), return it as is
+        if (data && typeof data === 'object' && 'statusCode' in data && 'message' in data && 'data' in data) {
+          return {
+            statusCode: data.statusCode,
+            message: data.message,
+            data: data.data,
+          };
+        }
+        
+        // For other responses, return as is
+        return data;
+      }),
     );
   }
 }

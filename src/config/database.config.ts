@@ -9,7 +9,8 @@ export default registerAs('database', (): TypeOrmModuleOptions => ({
   password: process.env.DATABASE_PASSWORD || 'password',
   database: process.env.DATABASE_NAME || 'stagecraft_db',
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-  synchronize: process.env.NODE_ENV === 'development',
-  logging: process.env.NODE_ENV === 'development',
+  synchronize: false,
+  logging: false,
   autoLoadEntities: true,
+  ssl: process.env.DATABASE_SSL === 'require' ? { rejectUnauthorized: false } : false,
 }));

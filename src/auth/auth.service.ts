@@ -213,7 +213,7 @@ export class AuthService {
   Send OTP Method
   ========================================
   */
-  async sendOtp(email: string): Promise<{ message: string }> {
+  async sendOtp(email: string) {
     const user = await this.userRepository.findOne({ where: { email } });
     if (!user)
       throw new BadRequestException(SYS_MSG.USER_ACCOUNT_DOES_NOT_EXIST);
@@ -229,7 +229,14 @@ export class AuthService {
     } catch (error) {
       throw new BadRequestException(SYS_MSG.OTP_EMAIL_FAILED);
     }
-    return { message: SYS_MSG.OTP_SENT_SUCCESSFULLY };
+    
+    return {
+      statusCode: HttpStatus.OK,
+      message: SYS_MSG.OTP_SENT_SUCCESSFULLY,
+      data: {
+        email: user.email,
+      },
+    };
   }
 
   /* 
@@ -237,7 +244,7 @@ export class AuthService {
   Validate OTP Method
   ========================================
   */
-  async validateOtp(email: string, otp: string): Promise<{ message: string }> {
+  async validateOtp(email: string, otp: string) {
     const user = await this.userRepository.findOne({ where: { email } });
 
     if (!user) {
@@ -254,7 +261,11 @@ export class AuthService {
     user.otpExpiresAt = null;
     user.isEmailVerified = true;
     await this.userRepository.save(user);
-    return { message: SYS_MSG.OTP_VALIDATED_SUCCESSFULLY };
+    
+    return {
+      statusCode: HttpStatus.OK,
+      message: SYS_MSG.EMAIL_VERIFIED_SUCCESSFULLY,
+    };
   }
 
   /* 
@@ -262,7 +273,7 @@ export class AuthService {
   Forgot Password Method
   ========================================
   */
-  async forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<{ message: string }> {
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
     const { email } = forgotPasswordDto;
     const user = await this.userRepository.findOne({ where: { email } });
     
@@ -284,7 +295,13 @@ export class AuthService {
       throw new BadRequestException(SYS_MSG.OTP_EMAIL_FAILED);
     }
     
-    return { message: SYS_MSG.FORGOT_PASSWORD_OTP_SENT };
+    return {
+      statusCode: HttpStatus.OK,
+      message: SYS_MSG.FORGOT_PASSWORD_OTP_SENT,
+      data: {
+        email: user.email,
+      },
+    };
   }
 
   /* 
@@ -292,7 +309,7 @@ export class AuthService {
   Reset Password Method
   ========================================
   */
-  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<{ message: string }> {
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
     const { email, otp, newPassword } = resetPasswordDto;
     const user = await this.userRepository.findOne({ where: { email } });
 
@@ -316,7 +333,10 @@ export class AuthService {
     user.otpExpiresAt = null;
     await this.userRepository.save(user);
     
-    return { message: SYS_MSG.PASSWORD_RESET_SUCCESSFUL };
+    return {
+      statusCode: HttpStatus.OK,
+      message: SYS_MSG.PASSWORD_RESET_SUCCESSFUL,
+    };
   }
 
 }

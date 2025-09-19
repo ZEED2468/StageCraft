@@ -17,7 +17,12 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typeorm": "ts-node -r tsconfig-paths/register src/database/data-source.ts",
+    "migration:create": "npx typeorm migration:create ./src/database/migrations/migration",
+    "migration:generate": "npm run build && npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate -d ./dist/database/data-source.js src/database/migrations/auto-migration",
+    "migration:run": "npm run build && npx typeorm migration:run -d dist/database/data-source",
+    "migration:revert": "npm run build && npx typeorm migration:revert -d dist/database/data-source"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
@@ -31,6 +36,7 @@
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
+    "cookie-parser": "^1.4.7",
     "ejs": "^3.1.10",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.16.3",
